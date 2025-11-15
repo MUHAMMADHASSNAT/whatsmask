@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Save, ArrowLeft, Fullscreen, Plus, X, Zap, FileText, Trash2 } from 'lucide-react'
+import { Save, ArrowLeft, X, Zap, FileText, Trash2 } from 'lucide-react'
 
 export default function BotFlow() {
-  const [nodes, setNodes] = useState([
+  const [nodes] = useState([
     {
       id: 1,
       type: 'trigger',
@@ -101,7 +101,7 @@ export default function BotFlow() {
                         This flow will be triggered when a user sends any of these keywords
                       </p>
                       <div className="flex flex-wrap gap-2">
-                        {node.data.keywords.map((keyword, idx) => (
+                        {(node.data.keywords || []).map((keyword: string, idx: number) => (
                           <span
                             key={idx}
                             className="px-2 py-1 bg-primary-purple text-primary-blue rounded text-xs flex items-center gap-1"

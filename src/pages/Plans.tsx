@@ -1,4 +1,3 @@
-import { Plus } from 'lucide-react'
 import DataTable from '../components/DataTable'
 
 const mockPlans = [

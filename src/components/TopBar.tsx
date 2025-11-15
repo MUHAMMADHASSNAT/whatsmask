@@ -1,4 +1,4 @@
-import { Globe, Settings, ExternalLink, User, Menu, Trash2, Sun, Star, Grid3x3 } from 'lucide-react'
+import { Settings, ExternalLink, User, Menu, Trash2, Sun, Star, Grid3x3 } from 'lucide-react'
 
 interface TopBarProps {
   onMenuClick?: () => void

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeft, Save, Upload, RefreshCw, X } from 'lucide-react'
+import { ArrowLeft, Save, Upload, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 
 export default function AIAssistantCreate() {

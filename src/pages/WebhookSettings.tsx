@@ -1,4 +1,4 @@
-import { Plus, Save } from 'lucide-react'
+import { Save } from 'lucide-react'
 
 export default function WebhookSettings() {
   return (

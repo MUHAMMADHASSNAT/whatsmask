@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import { ArrowLeft, Send, RefreshCw, FileText } from 'lucide-react'
-import { Link, useParams } from 'react-router-dom'
+import { ArrowLeft, Send, FileText } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 export default function AIAssistantChat() {
-  const { id } = useParams()
   const [message, setMessage] = useState('')
   const [messages, setMessages] = useState([
     {

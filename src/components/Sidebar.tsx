@@ -1,14 +1,11 @@
 import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard,
-  Building2,
   ShoppingCart,
   FileText,
   CreditCard,
   Wallet,
-  Package,
   Headphones,
-  Webhook,
   Settings,
   Menu,
   X,
@@ -19,8 +16,7 @@ import {
   MessageSquare,
   Workflow,
   Sparkles,
-  MessageCircle,
-  Grid3x3
+  MessageCircle
 } from 'lucide-react'
 
 interface SidebarProps {

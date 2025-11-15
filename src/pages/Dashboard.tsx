@@ -1,5 +1,5 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts'
-import { Users, DollarSign, Building2, Megaphone, RefreshCw, Eye, Settings as SettingsIcon } from 'lucide-react'
+import { Users, DollarSign, Building2, Megaphone, RefreshCw } from 'lucide-react'
 import StatCard from '../components/StatCard'
 
 const chartData = [
