@@ -1,8 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ArrowLeft, Send, FileText } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
+import { storage } from '../utils/storage'
 
 export default function AIAssistantChat() {
+  const { id } = useParams()
+  const [assistant, setAssistant] = useState<any>(null)
+
+  useEffect(() => {
+    if (id) {
+      const assistants = storage.get<any[]>('ai-assistants', [])
+      const found = assistants.find((a) => a.id === id)
+      setAssistant(found || { name: 'FAQ Genius', model: 'gpt-4o-mini' })
+    }
+  }, [id])
   const [message, setMessage] = useState('')
   const [messages, setMessages] = useState([
     {
@@ -58,8 +69,8 @@ export default function AIAssistantChat() {
               <ArrowLeft size={20} className="text-gray-600" />
             </Link>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">FAQ Genius</h2>
-              <p className="text-sm text-gray-500">gpt-4o-mini</p>
+              <h2 className="text-xl font-bold text-gray-900">{assistant?.name || 'FAQ Genius'}</h2>
+              <p className="text-sm text-gray-500">{assistant?.model || 'gpt-4o-mini'}</p>
             </div>
           </div>
           <div className="flex items-center gap-4">

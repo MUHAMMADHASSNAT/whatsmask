@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Sidebar from './Sidebar'
 import TopBar from './TopBar'
 import SetupPanel from './SetupPanel'
+import ToastContainer from './ToastContainer'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -25,6 +26,7 @@ export default function Layout({ children }: LayoutProps) {
         </main>
       </div>
       <SetupPanel isOpen={isSetupOpen} onClose={() => setIsSetupOpen(false)} />
+      <ToastContainer />
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"

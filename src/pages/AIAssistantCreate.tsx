@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { ArrowLeft, Save, Upload, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
+import { storage } from '../utils/storage'
+import { showToast } from '../components/ToastContainer'
 
 export default function AIAssistantCreate() {
   const navigate = useNavigate()
@@ -31,7 +33,27 @@ If a section from the documentation directly answers the question, briefly summa
   }
 
   const handleSubmit = () => {
-    // Handle form submission
+    if (!formData.description.trim()) {
+      showToast('Please enter a description', 'error')
+      return
+    }
+
+    const newAssistant = {
+      id: `assistant-${Date.now()}`,
+      name: formData.description.split('.')[0] || 'New Assistant',
+      description: formData.description,
+      model: formData.aiModel,
+      temperature: formData.temperature,
+      systemInstructions: formData.systemInstructions,
+      files: uploadedFiles,
+      createdAt: new Date().toISOString()
+    }
+
+    const existing = storage.get<any[]>('ai-assistants', [])
+    const updated = [...existing, newAssistant]
+    storage.set('ai-assistants', updated)
+    
+    showToast('AI Assistant created successfully!', 'success')
     navigate('/ai-assistant')
   }
 
