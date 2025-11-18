@@ -173,7 +173,20 @@ export default function Dashboard() {
               <p className="text-lg font-bold text-gray-900 mb-4">
                 {item.used} / {item.limit}
               </p>
-              <button className="w-full px-3 py-2 bg-white text-primary-blue rounded-lg hover:bg-primary-purple hover:text-primary-blue text-sm font-medium transition-colors">
+              <button 
+                onClick={() => {
+                  if (item.action === 'View' && item.name === 'Contacts') {
+                    window.location.href = '/contact'
+                  } else if (item.action === 'Manage' && item.name === 'AI Assistant') {
+                    window.location.href = '/ai-assistant'
+                  } else if (item.action === 'Open Chat') {
+                    window.location.href = '/chat'
+                  } else if (item.action === 'Manage' && item.name === 'Bot Flow') {
+                    window.location.href = '/bot-flow'
+                  }
+                }}
+                className="w-full px-3 py-2 bg-white text-primary-blue rounded-lg hover:bg-primary-purple hover:text-primary-blue text-sm font-medium transition-colors"
+              >
                 {item.action}
               </button>
             </div>
