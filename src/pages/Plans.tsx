@@ -106,6 +106,14 @@ export default function Plans() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onCreate={handleCreate}
+        onBulkDelete={(selected) => {
+          const ids = selected.map((s: any) => s.id)
+          const updated = plans.filter((p) => !ids.includes(p.id))
+          setPlans(updated)
+          storage.set('plans', updated)
+          showToast(`${selected.length} plan(s) deleted successfully`, 'success')
+        }}
+        exportFilename="plans"
       />
 
       <Modal

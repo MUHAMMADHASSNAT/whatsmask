@@ -107,6 +107,14 @@ export default function Tenants() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onCreate={handleCreate}
+        onBulkDelete={(selected) => {
+          const ids = selected.map((s: any) => s.id)
+          const updated = tenants.filter((t) => !ids.includes(t.id))
+          setTenants(updated)
+          storage.set('tenants', updated)
+          showToast(`${selected.length} tenant(s) deleted successfully`, 'success')
+        }}
+        exportFilename="tenants"
       />
 
       <Modal

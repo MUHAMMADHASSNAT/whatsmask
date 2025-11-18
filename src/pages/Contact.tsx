@@ -107,6 +107,14 @@ export default function Contact() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onCreate={handleCreate}
+        onBulkDelete={(selected) => {
+          const ids = selected.map((s: any) => s.id)
+          const updated = contacts.filter((c) => !ids.includes(c.id))
+          setContacts(updated)
+          storage.set('contacts', updated)
+          showToast(`${selected.length} contact(s) deleted successfully`, 'success')
+        }}
+        exportFilename="contacts"
       />
 
       <Modal

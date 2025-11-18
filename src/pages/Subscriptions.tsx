@@ -106,6 +106,14 @@ export default function Subscriptions() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onCreate={handleCreate}
+        onBulkDelete={(selected) => {
+          const ids = selected.map((s: any) => s.id)
+          const updated = subscriptions.filter((sub) => !ids.includes(sub.id))
+          setSubscriptions(updated)
+          storage.set('subscriptions', updated)
+          showToast(`${selected.length} subscription(s) deleted successfully`, 'success')
+        }}
+        exportFilename="subscriptions"
       />
 
       <Modal
