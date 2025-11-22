@@ -1,5 +1,5 @@
 import { Search, Filter, Plus, Edit, Trash2, ChevronLeft, ChevronRight, Download, Printer, CheckSquare, Square } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { exportToCSV, exportToJSON } from '../utils/export'
 import { showToast } from './ToastContainer'
 
@@ -35,23 +35,57 @@ export default function DataTable({
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set())
   const [showExportMenu, setShowExportMenu] = useState(false)
+  const [showFilters, setShowFilters] = useState(false)
+  const [filters, setFilters] = useState<Record<string, string>>({})
   const itemsPerPage = 10
 
-  const filteredData = data.filter((row) =>
-    Object.values(row).some((val) =>
-      String(val).toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  )
+  const filteredData = data.filter((row) => {
+    // Search filter
+    const matchesSearch = searchTerm === '' || 
+      Object.values(row).some((val) =>
+        String(val).toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    
+    // Column filters
+    const matchesFilters = Object.keys(filters).every((key) => {
+      if (!filters[key] || filters[key] === '') return true
+      const rowValue = String(row[key] || '').toLowerCase()
+      return rowValue.includes(filters[key].toLowerCase())
+    })
+    
+    return matchesSearch && matchesFilters
+  })
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage)
 
   const handleSelectAll = () => {
-    if (selectedRows.size === paginatedData.length) {
-      setSelectedRows(new Set())
+    const allSelected = paginatedData.every((row) => {
+      const actualIndex = filteredData.findIndex(r => r === row)
+      return actualIndex !== -1 && selectedRows.has(actualIndex)
+    })
+    
+    if (allSelected) {
+      // Deselect all
+      const newSelected = new Set(selectedRows)
+      paginatedData.forEach((row) => {
+        const actualIndex = filteredData.findIndex(r => r === row)
+        if (actualIndex !== -1) {
+          newSelected.delete(actualIndex)
+        }
+      })
+      setSelectedRows(newSelected)
     } else {
-      setSelectedRows(new Set(paginatedData.map((_, idx) => startIndex + idx)))
+      // Select all
+      const newSelected = new Set(selectedRows)
+      paginatedData.forEach((row) => {
+        const actualIndex = filteredData.findIndex(r => r === row)
+        if (actualIndex !== -1) {
+          newSelected.add(actualIndex)
+        }
+      })
+      setSelectedRows(newSelected)
     }
   }
 
@@ -75,11 +109,45 @@ export default function DataTable({
       if (onBulkDelete) {
         onBulkDelete(selectedData)
       }
-      setSelectedRows(new Set())
       const count = selectedRows.size
+      setSelectedRows(new Set())
       showToast(`${count} item(s) deleted successfully`, 'success')
     }
   }
+
+  const handleClearFilters = () => {
+    setFilters({})
+    setSearchTerm('')
+    showToast('Filters cleared', 'info')
+  }
+
+  const handleFilterChange = (columnKey: string, value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      [columnKey]: value
+    }))
+    setCurrentPage(1) // Reset to first page when filter changes
+  }
+
+  // Reset page when search or filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, filters])
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (!target.closest('.filter-dropdown') && !target.closest('.filter-button')) {
+        setShowFilters(false)
+      }
+      if (!target.closest('.export-dropdown') && !target.closest('.export-button')) {
+        setShowExportMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const handleExportCSV = () => {
     exportToCSV(filteredData, exportFilename || title.toLowerCase().replace(/\s+/g, '-'))
@@ -115,10 +183,57 @@ export default function DataTable({
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
             />
           </div>
-          <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2">
-            <Filter size={16} />
-            <span>Filters</span>
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setShowFilters(!showFilters)}
+              className={`filter-button px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2 ${
+                Object.keys(filters).some(key => filters[key]) ? 'bg-blue-50 border-blue-300' : ''
+              }`}
+            >
+              <Filter size={16} />
+              <span>Filters</span>
+              {Object.keys(filters).some(key => filters[key]) && (
+                <span className="ml-1 px-1.5 py-0.5 bg-primary-blue text-white text-xs rounded-full">
+                  {Object.values(filters).filter(f => f).length}
+                </span>
+              )}
+            </button>
+            {showFilters && (
+              <div className="filter-dropdown absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold text-gray-900">Filters</h3>
+                  <button
+                    onClick={handleClearFilters}
+                    className="text-sm text-primary-blue hover:underline"
+                  >
+                    Clear All
+                  </button>
+                </div>
+                <div className="space-y-3 max-h-64 overflow-y-auto">
+                  {columns.map((column) => (
+                    <div key={column.key}>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        {column.label}
+                      </label>
+                      <input
+                        type="text"
+                        value={filters[column.key] || ''}
+                        onChange={(e) => handleFilterChange(column.key, e.target.value)}
+                        placeholder={`Filter by ${column.label}...`}
+                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setShowFilters(false)}
+                  className="mt-3 w-full px-3 py-2 bg-primary-blue text-white rounded-lg hover:bg-blue-600 text-sm"
+                >
+                  Apply Filters
+                </button>
+              </div>
+            )}
+          </div>
           {selectedRows.size > 0 && onBulkDelete && (
             <button
               onClick={handleBulkDelete}
@@ -131,13 +246,13 @@ export default function DataTable({
           <div className="relative">
             <button
               onClick={() => setShowExportMenu(!showExportMenu)}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
+              className="export-button px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
             >
               <Download size={16} />
               <span>Export</span>
             </button>
             {showExportMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+              <div className="export-dropdown absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
                 <button
                   onClick={handleExportCSV}
                   className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2 text-sm"
@@ -184,7 +299,10 @@ export default function DataTable({
                     onClick={handleSelectAll}
                     className="p-1 hover:bg-gray-100 rounded"
                   >
-                    {selectedRows.size === paginatedData.length ? (
+                    {paginatedData.length > 0 && paginatedData.every((row) => {
+                      const actualIndex = filteredData.findIndex(r => r === row)
+                      return selectedRows.has(actualIndex)
+                    }) ? (
                       <CheckSquare size={18} className="text-primary-blue" />
                     ) : (
                       <Square size={18} className="text-gray-400" />
@@ -219,11 +337,11 @@ export default function DataTable({
               </tr>
             ) : (
               paginatedData.map((row, index) => {
-                const rowIndex = startIndex + index
-                const isSelected = selectedRows.has(rowIndex)
+                const actualRowIndex = filteredData.findIndex(r => r === row)
+                const isSelected = selectedRows.has(actualRowIndex)
                 return (
                   <tr
-                    key={index}
+                    key={row.id || index}
                     className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
                       isSelected ? 'bg-blue-50' : ''
                     }`}
@@ -231,7 +349,7 @@ export default function DataTable({
                     {onBulkDelete && (
                       <td className="py-3 px-4">
                         <button
-                          onClick={() => handleSelectRow(rowIndex)}
+                          onClick={() => handleSelectRow(actualRowIndex)}
                           className="p-1 hover:bg-gray-100 rounded"
                         >
                           {isSelected ? (
