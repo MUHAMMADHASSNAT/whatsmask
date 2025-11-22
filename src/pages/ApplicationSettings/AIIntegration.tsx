@@ -1,10 +1,36 @@
 import { Save, ExternalLink } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { storage } from '../../utils/storage'
+import { showToast } from '../../components/ToastContainer'
 
 export default function AIIntegration() {
   const [openAIToggle, setOpenAIToggle] = useState(false)
   const [chatModel, setChatModel] = useState('gpt-3.5-turbo')
   const [secretKey, setSecretKey] = useState('')
+
+  useEffect(() => {
+    const saved = storage.get('ai-integration', {
+      openAIToggle: false,
+      chatModel: 'gpt-3.5-turbo',
+      secretKey: ''
+    })
+    setOpenAIToggle(saved.openAIToggle)
+    setChatModel(saved.chatModel)
+    setSecretKey(saved.secretKey)
+  }, [])
+
+  const handleSave = () => {
+    if (openAIToggle && !secretKey) {
+      showToast('Please enter OpenAI Secret Key', 'error')
+      return
+    }
+    storage.set('ai-integration', {
+      openAIToggle,
+      chatModel,
+      secretKey
+    })
+    showToast('AI Integration settings saved successfully', 'success')
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-soft p-6">
@@ -15,7 +41,10 @@ export default function AIIntegration() {
             Integrate AI-powered tools to enhance automation and decision-making.
           </p>
         </div>
-        <button className="px-4 py-2 bg-primary-blue text-white rounded-lg hover:bg-blue-600 flex items-center gap-2">
+        <button 
+          onClick={handleSave}
+          className="px-4 py-2 bg-primary-blue text-white rounded-lg hover:bg-blue-600 flex items-center gap-2"
+        >
           <Save size={16} />
           <span>Save Changes</span>
         </button>
@@ -73,7 +102,9 @@ export default function AIIntegration() {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
           />
           <a
-            href="#"
+            href="https://platform.openai.com/api-keys"
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-sm text-primary-blue hover:underline flex items-center gap-1 mt-1"
           >
             <ExternalLink size={14} />
