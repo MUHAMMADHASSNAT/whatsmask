@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Search, Phone, MoreVertical, Send, Smile, Paperclip, ThumbsUp, ThumbsDown, MessageSquare, Share2 } from 'lucide-react'
+import { showToast } from '../components/ToastContainer'
 
 export default function Chat() {
   const [messages, setMessages] = useState([
@@ -26,6 +27,8 @@ export default function Chat() {
     }
   ])
   const [message, setMessage] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showMenu, setShowMenu] = useState(false)
 
   const handleSend = () => {
     if (message.trim()) {
@@ -51,6 +54,8 @@ export default function Chat() {
             <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search conversations..."
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
             />
@@ -73,16 +78,58 @@ export default function Chat() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button className="p-2 hover:bg-gray-100 rounded-lg">
+            <button 
+              onClick={() => showToast('Search in conversation', 'info')}
+              className="p-2 hover:bg-gray-100 rounded-lg"
+            >
               <Search size={20} className="text-gray-600" />
             </button>
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            <button className="p-2 hover:bg-gray-100 rounded-lg">
+            <button 
+              onClick={() => showToast('Call feature coming soon', 'info')}
+              className="p-2 hover:bg-gray-100 rounded-lg"
+            >
               <Phone size={20} className="text-gray-600" />
             </button>
-            <button className="p-2 hover:bg-gray-100 rounded-lg">
-              <MoreVertical size={20} className="text-gray-600" />
-            </button>
+            <div className="relative">
+              <button 
+                onClick={() => setShowMenu(!showMenu)}
+                className="p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <MoreVertical size={20} className="text-gray-600" />
+              </button>
+              {showMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                  <button 
+                    onClick={() => {
+                      showToast('View profile', 'info')
+                      setShowMenu(false)
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm"
+                  >
+                    View Profile
+                  </button>
+                  <button 
+                    onClick={() => {
+                      showToast('Mute notifications', 'info')
+                      setShowMenu(false)
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm"
+                  >
+                    Mute Notifications
+                  </button>
+                  <button 
+                    onClick={() => {
+                      showToast('Clear chat', 'info')
+                      setShowMenu(false)
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-red-600"
+                  >
+                    Clear Chat
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -126,24 +173,66 @@ export default function Chat() {
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <button className="p-2 hover:bg-gray-100 rounded-lg">
+              <button 
+                onClick={() => showToast('Emoji picker coming soon', 'info')}
+                className="p-2 hover:bg-gray-100 rounded-lg"
+              >
                 <Smile size={20} className="text-gray-600" />
               </button>
-              <button className="p-2 hover:bg-gray-100 rounded-lg">
+              <button 
+                onClick={() => {
+                  const input = document.createElement('input')
+                  input.type = 'file'
+                  input.onchange = () => showToast('File attachment feature coming soon', 'info')
+                  input.click()
+                }}
+                className="p-2 hover:bg-gray-100 rounded-lg"
+              >
                 <Paperclip size={20} className="text-gray-600" />
               </button>
             </div>
             <div className="flex items-center gap-2">
-              <button className="p-2 hover:bg-gray-100 rounded-lg">
+              <button 
+                onClick={() => {
+                  if (messages.length > 0) {
+                    const lastMsg = messages[messages.length - 1]
+                    showToast(`Liked: "${lastMsg.text.substring(0, 30)}..."`, 'success')
+                  }
+                }}
+                className="p-2 hover:bg-gray-100 rounded-lg"
+              >
                 <ThumbsUp size={20} className="text-gray-600" />
               </button>
-              <button className="p-2 hover:bg-gray-100 rounded-lg">
+              <button 
+                onClick={() => {
+                  if (messages.length > 0) {
+                    const lastMsg = messages[messages.length - 1]
+                    showToast(`Disliked: "${lastMsg.text.substring(0, 30)}..."`, 'info')
+                  }
+                }}
+                className="p-2 hover:bg-gray-100 rounded-lg"
+              >
                 <ThumbsDown size={20} className="text-gray-600" />
               </button>
-              <button className="p-2 hover:bg-gray-100 rounded-lg">
+              <button 
+                onClick={() => showToast('Quick reply feature coming soon', 'info')}
+                className="p-2 hover:bg-gray-100 rounded-lg"
+              >
                 <MessageSquare size={20} className="text-gray-600" />
               </button>
-              <button className="p-2 hover:bg-gray-100 rounded-lg">
+              <button 
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: 'Chat Conversation',
+                      text: 'Check out this conversation'
+                    }).catch(() => showToast('Share cancelled', 'info'))
+                  } else {
+                    showToast('Share feature not available', 'info')
+                  }
+                }}
+                className="p-2 hover:bg-gray-100 rounded-lg"
+              >
                 <Share2 size={20} className="text-gray-600" />
               </button>
               <button

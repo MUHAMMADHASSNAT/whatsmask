@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import { Save, ArrowLeft, X, Zap, FileText, Trash2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { showToast } from '../components/ToastContainer'
 
 export default function BotFlow() {
-  const [nodes] = useState([
+  const navigate = useNavigate()
+  const [nodes, setNodes] = useState([
     {
       id: 1,
       type: 'trigger',
@@ -24,30 +27,123 @@ export default function BotFlow() {
       }
     }
   ])
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [newKeyword, setNewKeyword] = useState('')
+
+  const handleBack = () => {
+    navigate(-1)
+  }
+
+  const handleFullscreen = () => {
+    setIsFullscreen(!isFullscreen)
+    if (!isFullscreen) {
+      document.documentElement.requestFullscreen?.()
+    } else {
+      document.exitFullscreen?.()
+    }
+  }
+
+  const handleSaveFlow = () => {
+    showToast('Flow saved successfully', 'success')
+  }
+
+  const handleAddNode = (type: 'message' | 'ai-assistant') => {
+    const newNode = {
+      id: nodes.length + 1,
+      type: type === 'message' ? 'message' : 'ai-assistant',
+      title: type === 'message' ? 'Message' : 'AI Assistant',
+      position: { x: 100 + (nodes.length * 300), y: 100 },
+      data: type === 'message' ? { message: '' } : { assistant: 'FAQ Genius' }
+    }
+    setNodes([...nodes, newNode])
+    showToast(`${type === 'message' ? 'Message' : 'AI Assistant'} node added`, 'success')
+  }
+
+  const handleRemoveKeyword = (nodeId: number, keywordIndex: number) => {
+    const updated = nodes.map(node => {
+      if (node.id === nodeId && node.data.keywords) {
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            keywords: node.data.keywords.filter((_: string, idx: number) => idx !== keywordIndex)
+          }
+        }
+      }
+      return node
+    })
+    setNodes(updated)
+  }
+
+  const handleAddKeyword = (nodeId: number) => {
+    if (!newKeyword.trim()) {
+      showToast('Please enter a keyword', 'error')
+      return
+    }
+    const updated = nodes.map(node => {
+      if (node.id === nodeId) {
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            keywords: [...(node.data.keywords || []), newKeyword.trim()]
+          }
+        }
+      }
+      return node
+    })
+    setNodes(updated)
+    setNewKeyword('')
+    showToast('Keyword added', 'success')
+  }
+
+  const handleRemoveConnection = () => {
+    if (nodes.length > 1) {
+      setNodes(nodes.slice(0, -1))
+      showToast('Connection removed', 'success')
+    }
+  }
 
   return (
     <div className="h-[calc(100vh-8rem)] bg-background-grey rounded-xl overflow-hidden relative">
       <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
-        <button className="p-2 bg-white rounded-lg shadow-soft hover:bg-gray-50">
+        <button 
+          onClick={handleBack}
+          className="p-2 bg-white rounded-lg shadow-soft hover:bg-gray-50"
+        >
           <ArrowLeft size={20} />
         </button>
-        <button className="px-4 py-2 bg-white rounded-lg shadow-soft hover:bg-gray-50 text-sm">
-          Fullscreen
+        <button 
+          onClick={handleFullscreen}
+          className="px-4 py-2 bg-white rounded-lg shadow-soft hover:bg-gray-50 text-sm"
+        >
+          {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
         </button>
       </div>
 
       <div className="absolute top-4 right-4 z-10">
-        <button className="px-4 py-2 bg-primary-blue text-white rounded-lg hover:bg-blue-600 flex items-center gap-2">
+        <button 
+          onClick={handleSaveFlow}
+          className="px-4 py-2 bg-primary-blue text-white rounded-lg hover:bg-blue-600 flex items-center gap-2"
+        >
           <Save size={16} />
           <span>Save Flow</span>
         </button>
       </div>
 
       <div className="absolute left-4 top-20 bottom-4 w-12 bg-white rounded-lg shadow-soft p-2 flex flex-col gap-2 z-10">
-        <button className="p-2 hover:bg-gray-100 rounded-lg" title="Message">
+        <button 
+          onClick={() => handleAddNode('message')}
+          className="p-2 hover:bg-gray-100 rounded-lg" 
+          title="Message"
+        >
           <FileText size={20} className="text-gray-600" />
         </button>
-        <button className="p-2 hover:bg-gray-100 rounded-lg" title="AI Assistant">
+        <button 
+          onClick={() => handleAddNode('ai-assistant')}
+          className="p-2 hover:bg-gray-100 rounded-lg" 
+          title="AI Assistant"
+        >
           <Zap size={20} className="text-gray-600" />
         </button>
       </div>
@@ -107,7 +203,10 @@ export default function BotFlow() {
                             className="px-2 py-1 bg-primary-purple text-primary-blue rounded text-xs flex items-center gap-1"
                           >
                             {keyword}
-                            <button className="hover:text-red-600">
+                            <button 
+                              onClick={() => handleRemoveKeyword(node.id, idx)}
+                              className="hover:text-red-600"
+                            >
                               <X size={12} />
                             </button>
                           </span>
@@ -116,10 +215,16 @@ export default function BotFlow() {
                       <div className="flex gap-2 mt-2">
                         <input
                           type="text"
+                          value={newKeyword}
+                          onChange={(e) => setNewKeyword(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && handleAddKeyword(node.id)}
                           placeholder="Add a keyword..."
                           className="flex-1 px-3 py-1 border border-gray-300 rounded text-sm"
                         />
-                        <button className="px-3 py-1 bg-primary-blue text-white rounded text-sm">
+                        <button 
+                          onClick={() => handleAddKeyword(node.id)}
+                          className="px-3 py-1 bg-primary-blue text-white rounded text-sm"
+                        >
                           +
                         </button>
                       </div>
@@ -145,7 +250,10 @@ export default function BotFlow() {
           {nodes.length > 1 && (
             <div className="absolute" style={{ left: '350px', top: '150px' }}>
               <div className="w-32 h-0.5 bg-primary-purple border-dashed border-2 relative">
-                <button className="absolute -right-4 -top-2 p-1 bg-red-500 text-white rounded-full">
+                <button 
+                  onClick={handleRemoveConnection}
+                  className="absolute -right-4 -top-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                >
                   <Trash2 size={12} />
                 </button>
               </div>

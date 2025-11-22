@@ -1,6 +1,7 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts'
 import { Users, DollarSign, Building2, Megaphone, RefreshCw } from 'lucide-react'
 import StatCard from '../components/StatCard'
+import { showToast } from '../components/ToastContainer'
 
 const chartData = [
   { month: 'Sept', earnings: 4000, subscriptions: 2400 },
@@ -89,10 +90,16 @@ export default function Dashboard() {
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Plan 3</h3>
           <p className="text-sm text-gray-600 mb-4">Next Billing: 2025-08-02 (2 days)</p>
           <div className="flex gap-2">
-            <button className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm transition-colors">
+            <button 
+              onClick={handleRefresh}
+              className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm transition-colors"
+            >
               Refresh
             </button>
-            <button className="flex-1 px-3 py-2 bg-primary-blue text-white rounded-lg hover:bg-blue-600 text-sm transition-colors">
+            <button 
+              onClick={() => window.location.href = '/subscriptions'}
+              className="flex-1 px-3 py-2 bg-primary-blue text-white rounded-lg hover:bg-blue-600 text-sm transition-colors"
+            >
               Manage Subscription
             </button>
           </div>
@@ -228,8 +235,18 @@ export default function Dashboard() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-gray-900">Audience Growth</h2>
             <div className="flex gap-2">
-              <button className="px-3 py-1 bg-primary-blue text-white rounded-lg text-sm">Mixed</button>
-              <button className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">Stacked</button>
+              <button 
+                onClick={() => showToast('Mixed view selected', 'info')}
+                className="px-3 py-1 bg-primary-blue text-white rounded-lg text-sm"
+              >
+                Mixed
+              </button>
+              <button 
+                onClick={() => showToast('Stacked view selected', 'info')}
+                className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200"
+              >
+                Stacked
+              </button>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={250}>
