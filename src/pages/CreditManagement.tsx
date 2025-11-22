@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import DataTable from '../components/DataTable'
 import Modal from '../components/Modal'
-import { Plus, Minus, DollarSign } from 'lucide-react'
+import { Plus, Minus } from 'lucide-react'
 import { storage } from '../utils/storage'
 import { showToast } from '../components/ToastContainer'
 

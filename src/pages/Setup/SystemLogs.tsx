@@ -47,18 +47,6 @@ export default function SetupSystemLogs() {
     ? logs 
     : logs.filter(log => log.level === filterLevel)
 
-  const getLevelColor = (level: string) => {
-    switch (level) {
-      case 'Error':
-        return 'text-red-600 bg-red-50'
-      case 'Warning':
-        return 'text-yellow-600 bg-yellow-50'
-      case 'Info':
-        return 'text-blue-600 bg-blue-50'
-      default:
-        return 'text-gray-600 bg-gray-50'
-    }
-  }
 
   const columns = [
     { key: 'level', label: 'Level' },

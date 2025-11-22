@@ -3,9 +3,25 @@ import { Save, ArrowLeft, X, Zap, FileText, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { showToast } from '../components/ToastContainer'
 
+interface NodeData {
+  contactType?: string
+  triggerType?: string
+  keywords?: string[]
+  assistant?: string
+  message?: string
+}
+
+interface Node {
+  id: number
+  type: string
+  title: string
+  position: { x: number; y: number }
+  data: NodeData
+}
+
 export default function BotFlow() {
   const navigate = useNavigate()
-  const [nodes, setNodes] = useState([
+  const [nodes, setNodes] = useState<Node[]>([
     {
       id: 1,
       type: 'trigger',
@@ -48,7 +64,7 @@ export default function BotFlow() {
   }
 
   const handleAddNode = (type: 'message' | 'ai-assistant') => {
-    const newNode = {
+    const newNode: Node = {
       id: nodes.length + 1,
       type: type === 'message' ? 'message' : 'ai-assistant',
       title: type === 'message' ? 'Message' : 'AI Assistant',
@@ -67,7 +83,7 @@ export default function BotFlow() {
           data: {
             ...node.data,
             keywords: node.data.keywords.filter((_: string, idx: number) => idx !== keywordIndex)
-          }
+          } as NodeData
         }
       }
       return node
@@ -87,7 +103,7 @@ export default function BotFlow() {
           data: {
             ...node.data,
             keywords: [...(node.data.keywords || []), newKeyword.trim()]
-          }
+          } as NodeData
         }
       }
       return node

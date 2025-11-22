@@ -60,16 +60,6 @@ export default function SetupModules() {
     }
   }
 
-  const handleToggleStatus = (module: Module) => {
-    const updated = modules.map((m) =>
-      m.id === module.id
-        ? { ...m, status: m.status === 'Enabled' ? 'Disabled' : 'Enabled' }
-        : m
-    )
-    setModules(updated)
-    storage.set('setup-modules', updated)
-    showToast(`Module ${module.status === 'Enabled' ? 'disabled' : 'enabled'} successfully`, 'success')
-  }
 
   const handleSubmit = () => {
     if (!formData.name || !formData.description) {
