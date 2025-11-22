@@ -76,7 +76,7 @@ export default function BotFlow() {
   }
 
   const handleRemoveKeyword = (nodeId: number, keywordIndex: number) => {
-    const updated = nodes.map(node => {
+    const updated: Node[] = nodes.map(node => {
       if (node.id === nodeId && node.data.keywords) {
         return {
           ...node,
@@ -96,7 +96,7 @@ export default function BotFlow() {
       showToast('Please enter a keyword', 'error')
       return
     }
-    const updated = nodes.map(node => {
+    const updated: Node[] = nodes.map(node => {
       if (node.id === nodeId) {
         return {
           ...node,
