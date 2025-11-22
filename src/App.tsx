@@ -38,6 +38,13 @@ import AIAssistantChat from './pages/AIAssistantChat'
 import Chat from './pages/Chat'
 import ApplicationSettings from './pages/ApplicationSettings'
 import AIIntegration from './pages/ApplicationSettings/AIIntegration'
+import WhatsAppAutoLead from './pages/ApplicationSettings/WhatsAppAutoLead'
+import StopBot from './pages/ApplicationSettings/StopBot'
+import WhatsAppWebhook from './pages/ApplicationSettings/WhatsAppWebhook'
+import SupportAgent from './pages/ApplicationSettings/SupportAgent'
+import NotificationSound from './pages/ApplicationSettings/NotificationSound'
+import AutoClearChat from './pages/ApplicationSettings/AutoClearChat'
+import AIAssistantSettings from './pages/ApplicationSettings/AIAssistantSettings'
 
 function App() {
   return (
@@ -67,7 +74,14 @@ function App() {
           <Route path="/webhook-settings" element={<WebhookSettings />} />
           <Route path="/application-settings" element={<ApplicationSettings />}>
             <Route index element={<AIIntegration />} />
+            <Route path="whatsapp-auto-lead" element={<WhatsAppAutoLead />} />
+            <Route path="stop-bot" element={<StopBot />} />
+            <Route path="webhook" element={<WhatsAppWebhook />} />
+            <Route path="support-agent" element={<SupportAgent />} />
+            <Route path="notification-sound" element={<NotificationSound />} />
             <Route path="ai-integration" element={<AIIntegration />} />
+            <Route path="auto-clear-chat" element={<AutoClearChat />} />
+            <Route path="ai-assistant" element={<AIAssistantSettings />} />
           </Route>
           <Route path="/payment-settings" element={<PaymentSettings />} />
           <Route path="/website-settings" element={<WebsiteSettings />} />
