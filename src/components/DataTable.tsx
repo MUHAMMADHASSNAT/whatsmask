@@ -280,16 +280,18 @@ export default function DataTable({
           {onCreate && (
             <button
               onClick={onCreate}
-              className="px-4 py-2 bg-primary-blue text-white rounded-lg hover:bg-blue-600 flex items-center gap-2"
+              className="px-4 py-2 bg-primary-blue text-white rounded-lg hover:bg-blue-600 flex items-center gap-2 touch-manipulation min-h-[44px]"
             >
               <Plus size={16} />
-              <span>Create New</span>
+              <span className="hidden sm:inline">Create New</span>
+              <span className="sm:hidden">New</span>
             </button>
           )}
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      {/* Desktop Table View */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-200">
@@ -297,7 +299,7 @@ export default function DataTable({
                 <th className="w-12 py-3 px-4">
                   <button
                     onClick={handleSelectAll}
-                    className="p-1 hover:bg-gray-100 rounded"
+                    className="p-1 hover:bg-gray-100 rounded touch-manipulation"
                   >
                     {paginatedData.length > 0 && paginatedData.every((row) => {
                       const actualIndex = filteredData.findIndex(r => r === row)
@@ -350,7 +352,7 @@ export default function DataTable({
                       <td className="py-3 px-4">
                         <button
                           onClick={() => handleSelectRow(actualRowIndex)}
-                          className="p-1 hover:bg-gray-100 rounded"
+                          className="p-1 hover:bg-gray-100 rounded touch-manipulation"
                         >
                           {isSelected ? (
                             <CheckSquare size={18} className="text-primary-blue" />
@@ -371,7 +373,7 @@ export default function DataTable({
                           {onEdit && (
                             <button
                               onClick={() => onEdit(row)}
-                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
                             >
                               <Edit size={16} />
                             </button>
@@ -379,7 +381,7 @@ export default function DataTable({
                           {onDelete && (
                             <button
                               onClick={() => onDelete(row)}
-                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
                             >
                               <Trash2 size={16} />
                             </button>
@@ -395,9 +397,78 @@ export default function DataTable({
         </table>
       </div>
 
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {paginatedData.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            No data found
+          </div>
+        ) : (
+          paginatedData.map((row, index) => {
+            const actualRowIndex = filteredData.findIndex(r => r === row)
+            const isSelected = selectedRows.has(actualRowIndex)
+            return (
+              <div
+                key={row.id || index}
+                className={`border border-gray-200 rounded-lg p-4 ${
+                  isSelected ? 'bg-blue-50 border-blue-300' : 'bg-white'
+                }`}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  {onBulkDelete && (
+                    <button
+                      onClick={() => handleSelectRow(actualRowIndex)}
+                      className="p-2 touch-manipulation"
+                    >
+                      {isSelected ? (
+                        <CheckSquare size={20} className="text-primary-blue" />
+                      ) : (
+                        <Square size={20} className="text-gray-400" />
+                      )}
+                    </button>
+                  )}
+                  {(onEdit || onDelete) && (
+                    <div className="flex items-center gap-2">
+                      {onEdit && (
+                        <button
+                          onClick={() => onEdit(row)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
+                        >
+                          <Edit size={18} />
+                        </button>
+                      )}
+                      {onDelete && (
+                        <button
+                          onClick={() => onDelete(row)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  {columns.map((column) => (
+                    <div key={column.key} className="flex flex-col">
+                      <span className="text-xs font-semibold text-gray-500 mb-1">
+                        {column.label}
+                      </span>
+                      <span className="text-sm text-gray-700">
+                        {row[column.key]}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          })
+        )}
+      </div>
+
       {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
-          <p className="text-sm text-gray-600">
+        <div className="flex flex-col sm:flex-row items-center justify-between mt-6 pt-4 border-t border-gray-200 gap-4">
+          <p className="text-sm text-gray-600 text-center sm:text-left">
             Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredData.length)} of{' '}
             {filteredData.length} entries
           </p>
@@ -405,17 +476,17 @@ export default function DataTable({
             <button
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
             >
               <ChevronLeft size={16} />
             </button>
-            <span className="text-sm text-gray-700">
+            <span className="text-sm text-gray-700 px-2">
               Page {currentPage} of {totalPages}
             </span>
             <button
               onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
             >
               <ChevronRight size={16} />
             </button>

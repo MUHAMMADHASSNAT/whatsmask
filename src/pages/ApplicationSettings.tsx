@@ -23,8 +23,8 @@ const settingsMenu = [
 
 export default function ApplicationSettings() {
   return (
-    <div className="flex gap-6">
-      <div className="w-64 bg-white rounded-xl shadow-soft p-4">
+    <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+      <div className="w-full md:w-64 bg-white rounded-xl shadow-soft p-4">
         <h2 className="text-xl font-bold text-gray-900 mb-4">Application Settings</h2>
         <nav className="space-y-2">
           {settingsMenu.map((item, index) => {
@@ -34,21 +34,21 @@ export default function ApplicationSettings() {
                 key={index}
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors touch-manipulation ${
                     isActive
                       ? 'bg-primary-blue text-white'
-                      : 'text-gray-700 hover:bg-primary-purple hover:text-primary-blue'
+                      : 'text-gray-700 hover:bg-primary-purple hover:text-primary-blue active:bg-primary-purple'
                   }`
                 }
               >
                 <Icon size={20} />
-                <span className="font-medium">{item.label}</span>
+                <span className="font-medium text-sm md:text-base">{item.label}</span>
               </NavLink>
             )
           })}
         </nav>
       </div>
-      <div className="flex-1">
+      <div className="flex-1 min-w-0">
         <Outlet />
       </div>
     </div>
